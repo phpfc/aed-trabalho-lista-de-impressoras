@@ -128,8 +128,57 @@ void opExibeFila(Impressora *lista) {
         exibeFila(imp);
 }
 
+/* procura o código em todas as filas, para não repetir a identificação de um documento */
+Impressora *buscaDocumento(Impressora *lista, int codigo) {
+    for (Impressora *imp = lista; imp != NULL; imp = imp->prox)
+        for (Documento *d = imp->fila.inicio; d != NULL; d = d->prox)
+            if (d->codigo == codigo)
+                return imp;
+    return NULL;
+}
+
+void enfileira(Fila *f, int codigo, const char *nome) {
+    Documento *novo = malloc(sizeof(Documento));
+    if (novo == NULL) {
+        fprintf(stderr, "Erro de alocacao\n");
+        exit(1);
+    }
+    novo->codigo = codigo;
+    strncpy(novo->nome, nome, MAX_NOME - 1);
+    novo->nome[MAX_NOME - 1] = '\0';
+    novo->prox = NULL;
+    if (f->inicio == NULL)
+        f->inicio = novo;
+    else
+        f->fim->prox = novo;
+    f->fim = novo;
+    f->qtd++;
+}
+
+void opEnvia(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora: ");
+    if (imp == NULL)
+        return;
+    if (!imp->ligada) {
+        printf("Impressora %d esta desligada\n", imp->id);
+        return;
+    }
+    int codigo = leInt("Codigo do documento: ");
+    Impressora *outra = buscaDocumento(lista, codigo);
+    if (outra != NULL) {
+        printf("Ja existe um documento com o codigo %d na impressora %d\n", codigo, outra->id);
+        return;
+    }
+    char nome[MAX_NOME];
+    printf("Nome do arquivo: ");
+    leLinha(nome, MAX_NOME);
+    enfileira(&imp->fila, codigo, nome);
+    printf("Documento %d enviado para a impressora %d (%d na fila)\n", codigo, imp->id, imp->fila.qtd);
+}
+
 void mostraMenu(void) {
-    printf("\n7 - Exibir fila de impressao de uma impressora\n");
+    printf("\n1 - Enviar documento para impressao\n");
+    printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("0 - Sair\n");
 }
 
@@ -143,6 +192,9 @@ int main(void) {
         mostraMenu();
         opcao = leInt("Opcao: ");
         switch (opcao) {
+        case 1:
+            opEnvia(lista);
+            break;
         case 7:
             opExibeFila(lista);
             break;
