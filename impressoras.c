@@ -310,12 +310,51 @@ void opDesliga(Impressora *lista) {
     printf("Impressora %d desligada\n", imp->id);
 }
 
+/* tira o documento de onde ele está e coloca na primeira posição da fila */
+int prioriza(Fila *f, int codigo) {
+    Documento *ant = NULL;
+    Documento *atual = f->inicio;
+    while (atual != NULL && atual->codigo != codigo) {
+        ant = atual;
+        atual = atual->prox;
+    }
+    if (atual == NULL)
+        return 0;
+    if (ant == NULL)
+        return 1;
+    ant->prox = atual->prox;
+    if (atual == f->fim)
+        f->fim = ant;
+    atual->prox = f->inicio;
+    f->inicio = atual;
+    return 1;
+}
+
+void opPrioriza(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora: ");
+    if (imp == NULL)
+        return;
+    if (imp->fila.qtd == 0) {
+        printf("Impressora %d nao tem documentos na fila\n", imp->id);
+        return;
+    }
+    exibeFila(imp);
+    int codigo = leInt("Codigo do documento a priorizar: ");
+    if (prioriza(&imp->fila, codigo)) {
+        printf("Documento %d agora e o primeiro da fila\n", codigo);
+        exibeFila(imp);
+    } else {
+        printf("Documento %d nao esta na fila da impressora %d\n", codigo, imp->id);
+    }
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
     printf("3 - Cancelar impressao\n");
     printf("4 - Exibir relatorio de uma impressora\n");
     printf("5 - Desligar impressora\n");
+    printf("6 - Priorizar impressao de um documento\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("0 - Sair\n");
 }
@@ -344,6 +383,9 @@ int main(void) {
             break;
         case 5:
             opDesliga(lista);
+            break;
+        case 6:
+            opPrioriza(lista);
             break;
         case 7:
             opExibeFila(lista);
