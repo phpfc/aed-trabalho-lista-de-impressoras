@@ -348,6 +348,15 @@ void opPrioriza(Impressora *lista) {
     }
 }
 
+void opNovaImpressora(Impressora *lista) {
+    /* a lista nunca está vazia aqui, então a nova entra no fim e o início não muda */
+    insereImpressora(lista);
+    Impressora *nova = lista;
+    while (nova->prox != NULL)
+        nova = nova->prox;
+    printf("Impressora %d inserida\n", nova->id);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
@@ -356,6 +365,7 @@ void mostraMenu(void) {
     printf("5 - Desligar impressora\n");
     printf("6 - Priorizar impressao de um documento\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
+    printf("8 - Inserir nova impressora\n");
     printf("0 - Sair\n");
 }
 
@@ -389,6 +399,9 @@ int main(void) {
             break;
         case 7:
             opExibeFila(lista);
+            break;
+        case 8:
+            opNovaImpressora(lista);
             break;
         case 0:
             break;
