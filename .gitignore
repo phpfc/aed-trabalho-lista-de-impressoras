@@ -1,0 +1,4 @@
+*.o
+*.out
+impressoras
+.DS_Store
