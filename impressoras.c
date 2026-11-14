@@ -238,10 +238,22 @@ void opCancela(Impressora *lista) {
         printf("Documento %d nao esta na fila da impressora %d\n", codigo, imp->id);
 }
 
+void relatorio(Impressora *imp) {
+    printf("Impressora %d (%s): %d na fila, %d impressao(oes) realizada(s)\n", imp->id,
+           imp->ligada ? "ligada" : "desligada", imp->fila.qtd, imp->impressas);
+}
+
+void opRelatorio(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora: ");
+    if (imp != NULL)
+        relatorio(imp);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
     printf("3 - Cancelar impressao\n");
+    printf("4 - Exibir relatorio de uma impressora\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("0 - Sair\n");
 }
@@ -264,6 +276,9 @@ int main(void) {
             break;
         case 3:
             opCancela(lista);
+            break;
+        case 4:
+            opRelatorio(lista);
             break;
         case 7:
             opExibeFila(lista);
