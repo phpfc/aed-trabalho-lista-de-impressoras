@@ -371,6 +371,33 @@ void opReliga(Impressora *lista) {
     printf("Impressora %d ligada\n", imp->id);
 }
 
+void relatorioGeral(Impressora *lista) {
+    int naFila = 0;
+    int impressas = 0;
+    for (Impressora *imp = lista; imp != NULL; imp = imp->prox) {
+        relatorio(imp);
+        naFila += imp->fila.qtd;
+        impressas += imp->impressas;
+    }
+    printf("Total: %d na fila, %d impressao(oes) realizada(s)\n", naFila, impressas);
+}
+
+void opLocaliza(Impressora *lista) {
+    int codigo = leInt("Codigo do documento: ");
+    Impressora *imp = buscaDocumento(lista, codigo);
+    if (imp == NULL) {
+        printf("Documento %d nao esta em nenhuma fila\n", codigo);
+        return;
+    }
+    int posicao = 1;
+    Documento *d = imp->fila.inicio;
+    while (d->codigo != codigo) {
+        d = d->prox;
+        posicao++;
+    }
+    printf("Documento %d (%s) esta na impressora %d, posicao %d da fila\n", codigo, d->nome, imp->id, posicao);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
@@ -381,6 +408,8 @@ void mostraMenu(void) {
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("8 - Inserir nova impressora\n");
     printf("9 - Religar impressora (extra)\n");
+    printf("10 - Relatorio geral (extra)\n");
+    printf("11 - Localizar documento pelo codigo (extra)\n");
     printf("0 - Sair\n");
 }
 
@@ -420,6 +449,12 @@ int main(void) {
             break;
         case 9:
             opReliga(lista);
+            break;
+        case 10:
+            relatorioGeral(lista);
+            break;
+        case 11:
+            opLocaliza(lista);
             break;
         case 0:
             break;
