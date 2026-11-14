@@ -176,8 +176,40 @@ void opEnvia(Impressora *lista) {
     printf("Documento %d enviado para a impressora %d (%d na fila)\n", codigo, imp->id, imp->fila.qtd);
 }
 
+/* tira o primeiro documento da fila; quem chama é responsável por dar free */
+Documento *desenfileira(Fila *f) {
+    Documento *primeiro = f->inicio;
+    if (primeiro == NULL)
+        return NULL;
+    f->inicio = primeiro->prox;
+    if (f->inicio == NULL)
+        f->fim = NULL;
+    primeiro->prox = NULL;
+    f->qtd--;
+    return primeiro;
+}
+
+void opImprime(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora: ");
+    if (imp == NULL)
+        return;
+    if (!imp->ligada) {
+        printf("Impressora %d esta desligada\n", imp->id);
+        return;
+    }
+    Documento *d = desenfileira(&imp->fila);
+    if (d == NULL) {
+        printf("Impressora %d nao tem documentos na fila\n", imp->id);
+        return;
+    }
+    imp->impressas++;
+    printf("Impressora %d imprimiu: codigo %d - %s (%d na fila)\n", imp->id, d->codigo, d->nome, imp->fila.qtd);
+    free(d);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
+    printf("2 - Imprimir\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("0 - Sair\n");
 }
@@ -194,6 +226,9 @@ int main(void) {
         switch (opcao) {
         case 1:
             opEnvia(lista);
+            break;
+        case 2:
+            opImprime(lista);
             break;
         case 7:
             opExibeFila(lista);
