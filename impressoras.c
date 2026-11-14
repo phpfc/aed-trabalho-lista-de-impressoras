@@ -357,6 +357,20 @@ void opNovaImpressora(Impressora *lista) {
     printf("Impressora %d inserida\n", nova->id);
 }
 
+/* ---------- operações extras ---------- */
+
+void opReliga(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora a religar: ");
+    if (imp == NULL)
+        return;
+    if (imp->ligada) {
+        printf("Impressora %d ja esta ligada\n", imp->id);
+        return;
+    }
+    imp->ligada = 1;
+    printf("Impressora %d ligada\n", imp->id);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
@@ -366,6 +380,7 @@ void mostraMenu(void) {
     printf("6 - Priorizar impressao de um documento\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("8 - Inserir nova impressora\n");
+    printf("9 - Religar impressora (extra)\n");
     printf("0 - Sair\n");
 }
 
@@ -402,6 +417,9 @@ int main(void) {
             break;
         case 8:
             opNovaImpressora(lista);
+            break;
+        case 9:
+            opReliga(lista);
             break;
         case 0:
             break;
