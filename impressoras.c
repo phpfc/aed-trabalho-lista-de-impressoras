@@ -207,9 +207,41 @@ void opImprime(Impressora *lista) {
     free(d);
 }
 
+int cancela(Fila *f, int codigo) {
+    Documento *ant = NULL;
+    Documento *atual = f->inicio;
+    while (atual != NULL && atual->codigo != codigo) {
+        ant = atual;
+        atual = atual->prox;
+    }
+    if (atual == NULL)
+        return 0;
+    if (ant == NULL)
+        f->inicio = atual->prox;
+    else
+        ant->prox = atual->prox;
+    if (atual == f->fim)
+        f->fim = ant;
+    free(atual);
+    f->qtd--;
+    return 1;
+}
+
+void opCancela(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora: ");
+    if (imp == NULL)
+        return;
+    int codigo = leInt("Codigo do documento: ");
+    if (cancela(&imp->fila, codigo))
+        printf("Documento %d cancelado (%d na fila)\n", codigo, imp->fila.qtd);
+    else
+        printf("Documento %d nao esta na fila da impressora %d\n", codigo, imp->id);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
+    printf("3 - Cancelar impressao\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("0 - Sair\n");
 }
@@ -229,6 +261,9 @@ int main(void) {
             break;
         case 2:
             opImprime(lista);
+            break;
+        case 3:
+            opCancela(lista);
             break;
         case 7:
             opExibeFila(lista);
