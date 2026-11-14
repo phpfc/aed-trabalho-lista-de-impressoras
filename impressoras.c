@@ -249,11 +249,73 @@ void opRelatorio(Impressora *lista) {
         relatorio(imp);
 }
 
+/*
+ * Passa os documentos da fila de origem para a de destino, intercalando:
+ * um documento do destino, um da origem, e assim por diante. Se o destino
+ * acabar antes, o resto da origem fica no final da fila.
+ * Os nodos são reaproveitados, só os ponteiros mudam.
+ */
+void intercala(Fila *destino, Fila *origem) {
+    if (origem->inicio == NULL)
+        return;
+
+    if (destino->inicio == NULL) {
+        destino->inicio = origem->inicio;
+        destino->fim = origem->fim;
+    } else {
+        Documento *d = destino->inicio;
+        Documento *o = origem->inicio;
+        while (d != NULL && o != NULL) {
+            Documento *proxD = d->prox;
+            Documento *proxO = o->prox;
+            d->prox = o;
+            if (proxD == NULL) {
+                /* o destino acabou: o resto da origem já está encadeado depois de o */
+                destino->fim = origem->fim;
+            } else {
+                o->prox = proxD;
+            }
+            d = proxD;
+            o = proxO;
+        }
+    }
+    destino->qtd += origem->qtd;
+    origem->inicio = NULL;
+    origem->fim = NULL;
+    origem->qtd = 0;
+}
+
+void opDesliga(Impressora *lista) {
+    Impressora *imp = escolheImpressora(lista, "Impressora a desligar: ");
+    if (imp == NULL)
+        return;
+    if (!imp->ligada) {
+        printf("Impressora %d ja esta desligada\n", imp->id);
+        return;
+    }
+    if (imp->fila.qtd > 0) {
+        printf("A impressora %d tem %d documento(s) na fila\n", imp->id, imp->fila.qtd);
+        Impressora *destino = escolheImpressora(lista, "Transferir para qual impressora? ");
+        if (destino == NULL)
+            return;
+        if (destino == imp || !destino->ligada) {
+            printf("O destino deve ser outra impressora que esteja ligada\n");
+            return;
+        }
+        intercala(&destino->fila, &imp->fila);
+        printf("Documentos transferidos para a impressora %d\n", destino->id);
+        exibeFila(destino);
+    }
+    imp->ligada = 0;
+    printf("Impressora %d desligada\n", imp->id);
+}
+
 void mostraMenu(void) {
     printf("\n1 - Enviar documento para impressao\n");
     printf("2 - Imprimir\n");
     printf("3 - Cancelar impressao\n");
     printf("4 - Exibir relatorio de uma impressora\n");
+    printf("5 - Desligar impressora\n");
     printf("7 - Exibir fila de impressao de uma impressora\n");
     printf("0 - Sair\n");
 }
@@ -279,6 +341,9 @@ int main(void) {
             break;
         case 4:
             opRelatorio(lista);
+            break;
+        case 5:
+            opDesliga(lista);
             break;
         case 7:
             opExibeFila(lista);
